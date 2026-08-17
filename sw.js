@@ -1,4 +1,4 @@
-const CACHE_NAME = 'journey-of-money-v12-pwa-2';
+const CACHE_NAME = 'journey-of-money-v12-pwa-3';
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -42,7 +42,6 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
 
   if (url.origin === self.location.origin) {
-    // Chapter images: network first so newly uploaded artwork appears immediately.
     if (url.pathname.includes('/chapter_images/')) {
       event.respondWith(
         fetch(req).then(response => {
@@ -54,7 +53,6 @@ self.addEventListener('fetch', event => {
       return;
     }
 
-    // Other same-origin app assets: cache first, then network.
     event.respondWith(
       caches.match(req).then(cached => cached || fetch(req).then(response => {
         const copy = response.clone();
@@ -65,7 +63,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // External links remain network-first.
   event.respondWith(fetch(req).catch(() => new Response(
     '<!doctype html><meta charset="utf-8"><title>Offline</title><body style="font-family:system-ui;padding:28px"><h2>Gerade offline</h2><p>Dieser externe Link braucht eine Internetverbindung.</p></body>',
     {headers:{'Content-Type':'text/html; charset=utf-8'}}
