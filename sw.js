@@ -1,4 +1,4 @@
-const CACHE_NAME = 'journey-of-money-v12-pwa-1';
+const CACHE_NAME = 'journey-of-money-v12-pwa-2';
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -41,8 +41,20 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(req.url);
 
-  // Same-origin app assets: cache first, then network.
   if (url.origin === self.location.origin) {
+    // Chapter images: network first so newly uploaded artwork appears immediately.
+    if (url.pathname.includes('/chapter_images/')) {
+      event.respondWith(
+        fetch(req).then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
+          return response;
+        }).catch(() => caches.match(req))
+      );
+      return;
+    }
+
+    // Other same-origin app assets: cache first, then network.
     event.respondWith(
       caches.match(req).then(cached => cached || fetch(req).then(response => {
         const copy = response.clone();
