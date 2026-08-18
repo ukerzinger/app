@@ -1,4 +1,4 @@
-const CACHE_NAME = 'journey-of-money-v12-pwa-4';
+const CACHE_NAME = 'journey-of-money-v12-pwa-5';
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -21,66 +21,51 @@ const APP_SHELL = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
   self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-    ))
+    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
   );
   self.clients.claim();
 });
 
-function withReadability(response){
-  if (!response) return response;
-  return response.text().then(html => {
-    if (!html.includes('readability.css')) {
-      html = html.replace('</head>', '<link rel="stylesheet" href="./readability.css?v=4"></head>');
-    }
-    const headers = new Headers(response.headers);
-    headers.delete('content-length');
-    headers.set('content-type','text/html; charset=utf-8');
-    return new Response(html, {
-      status: response.status,
-      statusText: response.statusText,
-      headers
-    });
-  });
+function withReadability(html){
+  if (html.includes('readability.css')) return html;
+  return html.replace('</head>', '<link rel="stylesheet" href="./readability.css?v=5"></head>');
 }
 
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
-
   const url = new URL(req.url);
 
   if (url.origin === self.location.origin) {
-    const scopeRoot = new URL('./', self.registration.scope).pathname;
-    const indexPath = new URL('./index.html', self.registration.scope).pathname;
-
-    // Main app document: network-first and inject the readability stylesheet.
-    if (req.mode === 'navigate' && (url.pathname === scopeRoot || url.pathname === indexPath)) {
+    // For page navigations, inject the readability stylesheet into the HTML.
+    if (req.mode === 'navigate') {
       event.respondWith(
-        fetch(req)
-          .then(response => {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
-            return withReadability(response);
-          })
-          .catch(() => caches.match('./index.html').then(withReadability))
+        fetch(req, {cache:'no-store'}).then(async response => {
+          const html = withReadability(await response.text());
+          return new Response(html, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: {'Content-Type':'text/html; charset=utf-8', 'Cache-Control':'no-store'}
+          });
+        }).catch(async () => {
+          const cached = await caches.match('./index.html');
+          if (!cached) return new Response('Offline', {status:503});
+          return new Response(withReadability(await cached.text()), {headers:{'Content-Type':'text/html; charset=utf-8'}});
+        })
       );
       return;
     }
 
-    // Chapter artwork should refresh immediately when replaced.
-    if (url.pathname.includes('/chapter_images/')) {
+    // Always refresh CSS and chapter images first, then keep an offline copy.
+    if (url.pathname.endsWith('/readability.css') || url.pathname.includes('/chapter_images/')) {
       event.respondWith(
-        fetch(req).then(response => {
+        fetch(req, {cache:'no-store'}).then(response => {
           const copy = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
           return response;
@@ -94,7 +79,7 @@ self.addEventListener('fetch', event => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
         return response;
-      }).catch(() => caches.match('./index.html').then(withReadability)))
+      }).catch(() => caches.match('./index.html')))
     );
     return;
   }
