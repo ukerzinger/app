@@ -1,0 +1,96 @@
+/* Journey of Money · readability upgrade */
+
+/* Stronger overall legibility on mobile */
+body{font-size:16px}
+
+/* Home / learning overview */
+.eyebrow{font-size:10px!important;line-height:1.25!important;letter-spacing:.08em!important}
+.hero h1{font-size:34px!important;line-height:1.08!important;letter-spacing:-.02em!important}
+.hero p{font-size:13.5px!important;line-height:1.55!important;color:#53655f!important}
+
+.tile h3{font-size:18px!important;line-height:1.22!important;letter-spacing:-.01em!important}
+.tile p{font-size:12.5px!important;line-height:1.5!important;color:#596963!important}
+.meta{font-size:10px!important;line-height:1.35!important}
+.progress-pill{font-size:10px!important;padding:6px 10px!important}
+
+/* Chapter headers */
+.chapter-hero h2{font-size:30px!important;line-height:1.08!important;letter-spacing:-.02em!important}
+.chapter-hero p{font-size:13px!important;line-height:1.55!important;color:#586963!important}
+.chapter-meta{font-size:10px!important;line-height:1.35!important}
+.finance-note{font-size:10px!important;line-height:1.45!important}
+.map-head b{font-size:14px!important}
+.map-head small{font-size:10px!important}
+.station-label{font-size:10px!important;line-height:1.25!important;max-width:124px!important;padding:8px 10px!important}
+.station-row b{font-size:13px!important;line-height:1.3!important}
+.station-row small{font-size:10px!important;line-height:1.4!important}
+.station-score{font-size:9px!important}
+
+/* Lesson pages */
+.lesson-progress{font-size:10px!important}
+.lesson-stage{font-size:10px!important}
+.lesson-card h2{font-size:30px!important;line-height:1.08!important}
+.lesson-card p{font-size:13.5px!important;line-height:1.6!important}
+.deep-copy,.deep-copy p{font-size:13px!important;line-height:1.62!important}
+.learn-list{font-size:12.8px!important;line-height:1.6!important}
+.concept,.example{font-size:13px!important;line-height:1.55!important}
+.choice{font-size:13px!important;line-height:1.45!important;padding:15px!important}
+.feedback{font-size:12px!important;line-height:1.5!important}
+.deep-kicker{font-size:9px!important}
+.micro-card b{font-size:12.5px!important}
+.quiz-intro p{font-size:12px!important}
+.quiz-count,.quiz-points{font-size:9.5px!important}
+
+/* Buttons */
+.cta,.btn{font-size:13px!important;line-height:1.2!important;min-height:48px!important}
+
+/* Main bottom navigation: readable 5-tab layout */
+.app{padding-bottom:92px!important}
+.bottom-nav{
+  height:84px!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:2px!important;
+  padding:7px 5px calc(8px + env(safe-area-inset-bottom))!important;
+}
+.bottom-tab{
+  min-width:0!important;
+  padding:5px 1px!important;
+  gap:3px!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:10.5px!important;
+  line-height:1.05!important;
+  font-weight:900!important;
+}
+.bottom-tab>span:last-child{
+  display:block!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  font-size:10.5px!important;
+  line-height:1.1!important;
+}
+.bottom-tab .tab-symbol{
+  min-width:32px!important;
+  width:auto!important;
+  height:30px!important;
+  padding:0 6px!important;
+  border-radius:10px!important;
+  font-size:9px!important;
+  flex:0 0 auto!important;
+}
+
+/* Other sections */
+.knowledge-hero h1,.knowledge-hero h2,.calc-hero h1,.calc-hero h2{font-size:28px!important;line-height:1.1!important}
+.featured-term b{font-size:22px!important}
+.featured-term p{font-size:12px!important;line-height:1.5!important}
+.calc-panel-head b{font-size:21px!important}
+
+/* Small phones: preserve clarity rather than shrinking to tiny type */
+@media (max-width:360px){
+  .hero h1{font-size:31px!important}
+  .tile h3{font-size:17px!important}
+  .bottom-tab>span:last-child{font-size:9.5px!important}
+  .bottom-tab .tab-symbol{min-width:28px!important;height:28px!important}
+}
