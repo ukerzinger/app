@@ -1,9 +1,10 @@
-const CACHE_NAME = 'journey-of-money-v12-pwa-3';
+const CACHE_NAME = 'journey-of-money-v12-pwa-4';
 const APP_SHELL = [
   "./",
   "./index.html",
   "./freedom.html",
   "./manifest.webmanifest",
+  "./readability.css",
   "./icons/icon-96.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
@@ -35,6 +36,23 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
+function withReadability(response){
+  if (!response) return response;
+  return response.text().then(html => {
+    if (!html.includes('readability.css')) {
+      html = html.replace('</head>', '<link rel="stylesheet" href="./readability.css?v=4"></head>');
+    }
+    const headers = new Headers(response.headers);
+    headers.delete('content-length');
+    headers.set('content-type','text/html; charset=utf-8');
+    return new Response(html, {
+      status: response.status,
+      statusText: response.statusText,
+      headers
+    });
+  });
+}
+
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -42,6 +60,24 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
 
   if (url.origin === self.location.origin) {
+    const scopeRoot = new URL('./', self.registration.scope).pathname;
+    const indexPath = new URL('./index.html', self.registration.scope).pathname;
+
+    // Main app document: network-first and inject the readability stylesheet.
+    if (req.mode === 'navigate' && (url.pathname === scopeRoot || url.pathname === indexPath)) {
+      event.respondWith(
+        fetch(req)
+          .then(response => {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
+            return withReadability(response);
+          })
+          .catch(() => caches.match('./index.html').then(withReadability))
+      );
+      return;
+    }
+
+    // Chapter artwork should refresh immediately when replaced.
     if (url.pathname.includes('/chapter_images/')) {
       event.respondWith(
         fetch(req).then(response => {
@@ -58,7 +94,7 @@ self.addEventListener('fetch', event => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
         return response;
-      }).catch(() => caches.match('./index.html')))
+      }).catch(() => caches.match('./index.html').then(withReadability)))
     );
     return;
   }
